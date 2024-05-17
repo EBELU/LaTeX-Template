@@ -1,0 +1,60 @@
+\documentclass[english, 11pt]{rapport}
+
+%_________________________________________________
+% Titlepage settings
+
+\toptext{MSFM02}
+\title{}
+\author{Erik Ewald}
+\email{er4416be-s@student.lu.se}
+% \supervisor{}
+
+%_________________________________________________
+% Macros
+
+% Writing macros:
+% 
+%     \newcommand{\cmd}[nargs]{defn}:
+%     Arguments ordered as #1, #2,...
+% 
+%     \NewDocumentCommand\cmd{mO{}D<>{}}{#1 maybe #2 maybe #3}
+%     {mO{}D<>} = {#1, #2, #3}
+%     m = Mandatory argument, accessed with \cmd{}
+%     O{} = Optional argument, accessed with []
+%     D<> = Optional argument, accessed with <>
+%     \cmd{arg1}[optarg1]<optarg2> => arg1 maybe optorg1 maybe optorg2
+%     *: \IfBooleanTF{body when starred}
+% 
+
+%Power of ten
+\newcommand{\pt}[1]{\cdot 10^{#1}} 
+%Halflife
+\newcommand{\hl}{\text{T$_{\nicefrac{1}{2}}$}}
+
+%Properties of an atom
+\NewDocumentCommand\atom{mmO{}O{}}{\text{$^{#2} _{#3} {\text{#1}} _{#4}$}}
+%Derivative, för d/dx -> dd{\,}{x}
+\NewDocumentCommand\dd{mm}{\text{$\frac{\text{d}#1}{\text{d}#2}$}}
+%Stopping power, skrivs \spower[col]
+\NewDocumentCommand\spower{O{}}{\text{$\left(\frac{\text{dE}}{\text{dx}}\right)_{\text{#1}}$}}
+
+%_________________________________________________
+% Bibliography
+
+\usepackage[style=vancouver, backend=biber]{biblatex}
+\usepackage{url}
+\addbibresource[glob]{bibfiles/*.bib}
+
+%_________________________________________________
+% Document
+
+\begin{document}
+
+\tableofcontents
+\newpage
+
+\input{textbody}
+
+\printbibliography
+
+\end{document}
