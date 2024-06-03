@@ -6,8 +6,7 @@
 \toptext{MSFM02}
 \title{}
 \author{Erik Ewald}
-\email{er4416be-s@student.lu.se}
-% \supervisor{}
+\contact{er4416be-s@student.lu.se}
 
 %_________________________________________________
 % Macros
@@ -31,8 +30,6 @@
 %Halflife
 \newcommand{\hl}{\text{T$_{\nicefrac{1}{2}}$}}
 
-%Properties of an atom
-\NewDocumentCommand\atom{mmO{}O{}}{\text{$^{#2} _{#3} {\text{#1}} _{#4}$}}
 %Derivative, för d/dx -> dd{\,}{x}
 \NewDocumentCommand\dd{mm}{\text{$\frac{\text{d}#1}{\text{d}#2}$}}
 %Stopping power, skrivs \spower[col]
@@ -41,8 +38,7 @@
 %_________________________________________________
 % Bibliography
 
-\usepackage[style=vancouver, backend=biber]{biblatex}
-\usepackage{url}
+\usepackage[style=ieee, backend=biber]{biblatex}
 \addbibresource[glob]{bibfiles/*.bib}
 
 %_________________________________________________

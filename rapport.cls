@@ -7,36 +7,35 @@
 %
 %   {Inställningar för försättsblad:
 %   Obligatoriska:  \title - Sätter huvudtitel
-%                   \author - Sätter författare, flera författare separeras med \\
+%                   \author - Sätter författare, flera författare separeras med \\. * ändrar till plural.
 %   
-%   Frivilliga:     \email - Sätter författares epost, separera flera med \\
-%                   \supervisor - Sätter handledare
+%   Frivilliga:     \contact[title]{adresser} - Sätter författares epost, separera flera med \\
 %                   \date - Sätter datum, standard är \today
 %                   \toptext - Sätter överrubrik
 %                   \subtext - Lägger till extra text under allt annat
-%                   \conducted - Ändrar försättsbladet så datumet delas i två fält, Lab Conducted: ### och Report Submitted: \date (Om inte definerad \today)
-%                   \resubmitted - Kräver att \conducted används, lägger tilll ett fält Report Resubmitted: ###
-%                   \logo - En bild som kommer läggas på försättsbladet
+%                   \conducted[Förtext, rad 1]{###}[Förtext, rad 2][Text, rad 2] - Ändrar försättsbladet så datumet delas i två fält, Lab conducted: ### \\ Report submitted: \date
+%                   \institution - Ändrar universitetsname i övre vänstra hörnet
 % 
 %   }
 %   
 %   {Globala macros:
-%   \paran - Streamlinar \right( \left), \paran{#} = \right( # \left) 
-%   \header - Ger header till alla sidor. Optional arguments [left text]<centre text>=right text=.
+%   \header[vänster]<mitten>=höger= - Sätter en header updelad i tre delar på alla sidor
+%   \countinsec - Räknar figures, tables och equation i sections, t.ex. figure 1 -> figure 1.1
+%
+%   \paran - Streamlinar \right( \left), \paran{#} = \right( # \left), kräver math mode
+%   \brackets - Puts nice brackets around things, requires math mode
+%   \atom{betäckning}{masstal}[atomnummer][neutrontal] - Properties of an atom
 %   
 %   Listings för Python: använd [language=PythonPlus]
 %
 %
 %   }
 %
-%   {Till Gustav:
-%   Lunds Universitet i vänstra hörnet kan ändras genom \@uni token.
-%   }
 % 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
 
-\ProvidesClass{rapport}[24.02.11]
+\ProvidesClass{rapport}[24.06.02]
 \NeedsTeXFormat{LaTeX2e}
 
 %Processing class options
@@ -55,7 +54,7 @@
 \RequirePackage[colorlinks=false, allcolors=blue]{hyperref}
 \RequirePackage{parskip} %% Tillåter vanligt radbyte
 \RequirePackage{esvect} %Vektortecken
-\RequirePackage{siunitx} %Eneheter i math environment
+\RequirePackage{siunitx} %Eneheter i math environment, Allows for S as tabular alignment, begin{tabular}{lSSS}, for aligning the decimal points.
 \RequirePackage{lipsum}%http://ctan.org/pkg/lipsum
 \RequirePackage[outline]{contour}% http://ctan.org/pkg/contour
 \RequirePackage{float} %Allows using H in tables in figures
@@ -68,7 +67,10 @@
 \RequirePackage{diagbox}
 \RequirePackage{expl3} %Wrapper for LaTeX3
 \RequirePackage{csquotes}
-\RequirePackage{fancyhdr} % Paket för headern
+\RequirePackage{ifthen}
+\RequirePackage{fancyhdr}
+
+
 
 % ===============
 %%% Table formating
@@ -83,30 +85,35 @@
     \captionsetup[table]{aboveskip=3pt}
     \captionsetup[figure]{aboveskip=3pt}
 
-\RequirePackage{siunitx} % Allows for S as tabular alignment, begin{tabular}{lSSS}, for aligning the decimal points.
 
 % ===============
 %%% Counts figures within sections
 % ===============
-\counterwithin{figure}{section}
-\counterwithin{equation}{section}
-\counterwithin{table}{section}
-
+\def\countinsec{
+    \counterwithin{figure}{section}
+    \counterwithin{equation}{section}
+    \counterwithin{table}{section}
+}
 
 % ===============
 %%% Defining universal macros %%%
 % ===============
+
 %\paran - Puts nice brackets around things
 \NewDocumentCommand\paran{m}{\left(#1\right)}
 
+%\brackets - Puts nice brackets around things
+\NewDocumentCommand\brackets{m}{\left[#1\right]}
 
-%\header - Adds header to all pages
-% [] sets left text, <> sets centre text, == sets left text, 
-% if more than one is given they must be given in the correct order
+%\atom - Properties of an atom
+\ProvideDocumentCommand\atom{mmO{}O{}}{\text{$^{#2}_{#3}{\text{#1}}_{#4}$}}
+
+%\header
 \NewDocumentCommand{\header}{od<>d==}{
 \pagestyle{fancy}
+\fancyhf{}
     \IfNoValueTF{#1}{
-        \fancyhead[HL]{\author}
+        \fancyhead[HL]{\@auth}
     }{
         \fancyhead[HL]{#1}
     }
@@ -120,6 +127,7 @@
     }{
         \fancyhead[HR]{#3}
     }
+    \fancyfoot[C]{\thepage}
 
 }
 
@@ -137,27 +145,46 @@
 \def\@svenska{swedish}
 \def\@engelska{english}
 
+%%% Svenska =====
 \ifx\lang\@svenska
-\def\@by{Av}
-\def\@contact{E-post}
-\def\@suprvsr{Handledare}
+% Author
+\RenewDocumentCommand\author{s m}{
+    \def\@author{\textit{författare} \\  \textbf{#2}}
+    \def\@auth{#2}
+}
+%Conducted
+\NewDocumentCommand\conducted{s O{Laboration genomförd: } m O{Rapport inlämnad: }O{\date}}{
+    \def\@conducted{#2#3 \\ #4#5}
+}
+
+%Email
+\NewDocumentCommand\contact{O{\textit{E-post}} m}{
+    \def\@contact{#1 \\ #2}
+}
+% University if \institution is not used
 \def\@uni{Lunds Universitet}
-\def\@cond{Labboration Genomförd}
-\def\@subm{Rapport Inlämnad}
-\def\@resubm{Rapport Inlämnad Pånytt}
 \else
+%%% English =====
 \ifx\lang\@engelska
-\def\@by{by}
-\def\@contact{E-mail}
-\def\@suprvsr{Supervisor}
+% Author
+\RenewDocumentCommand\author{s m}{
+    \IfBooleanTF{#1}
+    {\def\@author{\textit{authors} \\  \textbf{#2}
+    \def\@auth{#2}}
+    }{\def\@author{\textit{author} \\  \textbf{#2}}
+    \def\@auth{#2}}
+}
+%Conducted
+\NewDocumentCommand\conducted{s O{Lab Conducted: } m}{
+    \def\@conducted{#2 #3}
+}
+
+%Email
+\NewDocumentCommand\contact{O{\textit{E-mail}} m}{
+    \def\@contact{#1 \\ #2}
+}
+% University if \institution is not used
 \def\@uni{Lund University}
-\def\@cond{Lab Conducted}
-\def\@subm{Report Submitted}
-\def\@resubm{Report Resubmitted}
-\else
-\def\@by{\textcolor{red}{undef}}
-\def\@suprvsr{\textcolor{red}{undef}}
-\def\@suprvsr{\textcolor{red}{undef}}
 \fi
 \fi
 
@@ -170,105 +197,111 @@
 
 %Provide commands for the variable parts of the titlepage
 \def\title#1{\def\title{#1}}
-\def\author#1{\def\author{#1}}
-\def\email#1{\def\email{#1}}
-\def\supervisor#1{\def\supervisor{#1}}
 \def\date#1{\def\date{#1}}
 \def\toptext#1{\def\toptext{#1}}
 \def\subtext#1{\def\subtext{#1}}
-\def\conducted#1{\def\conducted{#1}}
-\def\resubmitted#1{\def\resubmitted{#1}}
 \def\logo#1{\def\logo{#1}}
-
-
+\def\institution#1{\def\institution{#1}}
 
 %Inputting the title page at the start of the document
 \AtBeginDocument{
-
-%Handling date
+% Handling secondary defenitions
 \if\date\empty
     \renewcommand\date{\today}
 \fi
 
+
 \begin{titlepage}
  \begin{center}
-         \noindent
+        \noindent
         \begin{minipage}{.35\textwidth}
-            \Large \@uni 
-
+            %%% Insitution [top left corner]
+            \ifdefined\institution
+            \Large \institution
+            \else
+            \Large \@uni
+            \fi 
+            %%%
         \end{minipage}
         \begin{minipage}{.55\textwidth}
-            \begin{flushright}
-            \if\conducted\undefined
+        \begin{flushright}
+            %%% Date [top right corner]
+            \ifdefined\@conducted
+            \else
             \Large \date
             \fi
-            \end{flushright}  
+            %%%
+        \end{flushright}  
         \end{minipage}
 
-        
-        \vspace*{4cm}
-        \text{\LARGE \if\toptext\undefined \else\toptext \fi}
-        
+        \vspace*{4cm} % Space for title
+        \LARGE
+        %%% Text above the title
+        \ifdefined\toptext
+        \toptext
+        \fi
+        %%%
 
-       \Large
-        \rule{14cm}{0.2mm}
-        \vspace*{0.2cm}
-        
-       \Huge
-       \textbf{\if\title\undefined $\backslash title$ \else \title \fi}
+        \rule{14cm}{0.2mm} % Top line in title
+        \vspace*{.4cm}
+
+
+        %%% Title
+        \Huge
+        \ifdefined\title
+        \textbf{\title}
+        \else
+        \textcolor{red}{\title}
+        \fi
         \Large
-        \rule{14cm}{0.5mm}
+        %%%
+
+        \rule{14cm}{0.5mm} % Bottom line in title
        
-        \vspace{1cm}
+        \vspace{.6cm}
         \noindent
         \begin{minipage}{.45\textwidth}
-            \textit{\@by} 
-
-            \textbf{\Large \if\author\undefined $\backslash author$ \else\author \fi}
+            %%% Author [left]
+            \ifdefined\@author
+            \@author
+            \else
+            \textcolor{red}{\\author}
+            \fi
+            %%%
         \end{minipage}
         \begin{minipage}{.45\textwidth}
-            \begin{flushright}
-            \if\email\undefined\else
-                \textit{\@contact}
-
-                            \email
+        \begin{flushright}
+            %%% Email
+            \ifdefined\@contact
+            \@contact
             \fi
-            \end{flushright}  
+            %%%
+        \end{flushright}  
         \end{minipage}
 
-       
-        \vspace{2cm}
-
-
-        \if\supervisor\undefined\else
-        \@suprvsr : \supervisor
+        \vspace{1.5cm}
+        %%% Conducted
+        \ifdefined\@conducted
+        \@conducted
         \fi
+        %%%
 
-        \if\subtext\undefined\else
+        %%% Subtext
+        \ifdefined\subtext
         \subtext
         \fi
-
-        \if\conducted\undefined\else
-        \large
-        \vspace{1cm}
-        \@cond: \conducted
-
-        \@subm: \if\date\undefined{\today} \else{\date} \fi \\
-        \if\resubmitted\undefined\else
-        \vspace{.5cm}
-        \@resubm: \resubmitted
-        \fi
-        \vspace{1.5cm}
-        \fi
+        %%%
         
-        \if\logo\empty
-        \else
+        %%% Logo [bottom of page]
+        \if\logo\empty\else
         \begin{figure}[H]
         \centering
         \includegraphics[width = .5\linewidth]{\logo}
         \end{figure}
         \fi
         \vfill
+
+        %Department of Physics
    \end{center}
 \end{titlepage}
 
@@ -345,7 +378,7 @@ keywordstyle=[4]\color{OrangeRed}, % Errors
 keywordstyle=[5]\color{NavyBlue}, % Numpy
 keywordstyle=[6]\color{Maroon}, % Self
 stringstyle=\color{ForestGreen}, % Strings
-emphstyle=\color{Blue}\underbar,
+emphstyle=\color{blue}\bf\underbar,
 literate=% Digit color
     *
     {0}{{{\color{Emerald}0}}}1
