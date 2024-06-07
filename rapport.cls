@@ -9,7 +9,7 @@
 %   Obligatoriska:  \title - Sätter huvudtitel
 %                   \author - Sätter författare, flera författare separeras med \\. * ändrar till plural.
 %   
-%   Frivilliga:     \contact[title]{adresser} - Sätter författares epost, separera flera med \\
+%   Frivilliga:     \email[title]{adresser} - Sätter författares epost, separera flera med \\
 %                   \date - Sätter datum, standard är \today
 %                   \toptext - Sätter överrubrik
 %                   \subtext - Lägger till extra text under allt annat
@@ -158,8 +158,8 @@
 }
 
 %Email
-\NewDocumentCommand\contact{O{\textit{E-post}} m}{
-    \def\@contact{#1 \\ #2}
+\NewDocumentCommand\email{O{\textit{E-post}} m}{
+    \def\@email{#1 \\ #2}
 }
 % University if \institution is not used
 \def\@uni{Lunds Universitet}
@@ -180,8 +180,8 @@
 }
 
 %Email
-\NewDocumentCommand\contact{O{\textit{E-mail}} m}{
-    \def\@contact{#1 \\ #2}
+\NewDocumentCommand\email{O{\textit{E-mail}} m}{
+    \def\@email{#1 \\ #2}
 }
 % University if \institution is not used
 \def\@uni{Lund University}
@@ -272,8 +272,8 @@
         \begin{minipage}{.45\textwidth}
         \begin{flushright}
             %%% Email
-            \ifdefined\@contact
-            \@contact
+            \ifdefined\@email
+            \@email
             \fi
             %%%
         \end{flushright}  
