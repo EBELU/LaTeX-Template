@@ -50,12 +50,16 @@
 \RequirePackage[a4paper,top=2cm,bottom=2cm,left=1in,right=1in,marginparwidth=1.75cm]{geometry}
 \RequirePackage{amsmath,amsthm,amsfonts,amssymb,amscd}
 \RequirePackage{graphicx}
-\RequirePackage{xcolor} %Fler färger
+\RequirePackage{multirow}
+\RequirePackage[table, dvipsnames]{xcolor} % Fler färger
 \RequirePackage[colorlinks=false, allcolors=blue]{hyperref}
 \RequirePackage{parskip} %% Tillåter vanligt radbyte
 \RequirePackage{esvect} %Vektortecken
-\RequirePackage{siunitx} %Eneheter i math environment, Allows for S as tabular alignment, begin{tabular}{lSSS}, for aligning the decimal points.
-\RequirePackage{lipsum}%http://ctan.org/pkg/lipsum
+\RequirePackage{siunitx, tabularx} %Eneheter i math environment, Allows for S as tabular alignment, begin{tabular}{lSSS}, for aligning the decimal points.
+\sisetup{
+inline-per-mode = symbol,
+separate-uncertainty = true}
+\RequirePackage{lipsum, blindtext}%http://ctan.org/pkg/lipsum
 \RequirePackage[outline]{contour}% http://ctan.org/pkg/contour
 \RequirePackage{float} %Allows using H in tables in figures
 \RequirePackage[export]{adjustbox}
@@ -69,7 +73,9 @@
 \RequirePackage{csquotes}
 \RequirePackage{ifthen}
 \RequirePackage{fancyhdr}
+\RequirePackage[outputdir=output/]{minted} % Code listing
 
+\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
 
 
 % ===============
@@ -309,93 +315,96 @@
 
 % ===============
 %%% Listings for python code
+
+% Deprecated !!!
+
 % ===============
 
-%%% Packages %%%
-\RequirePackage{listings}
-\RequirePackage[dvipsnames]{xcolor}
-\definecolor{backcolour}{rgb}{0.95,0.95,0.92}
-\renewcommand{\lstlistingname}{\textbf{Code Listing}} % Makes label bf
-%%% Defining new version of the python language %%%
-\lstdefinelanguage{PythonPlus}[]{Python}{
-    %
-    %%% general listing options %%%
-    xrightmargin=1cm,
-    xleftmargin=1cm,
-    aboveskip=1em,
-    breaklines=true,
-    abovecaptionskip=6pt,
-    captionpos=b,
-    escapeinside={(¤}{¤)},
-    frame=single,
-    numbers=left,
-    numbersep=6pt,
-    numberstyle=\scriptsize,
-    showstringspaces=false,
-    deletekeywords={,print,},
-    %
-    %%% Adding python keywords %%%
-    %
-    % Python builtin
-    morekeywords=[1]{,as,assert,nonlocal,with,yield,True,False,None,},
-    %
-    % Common functions
-    morekeywords=[2]{,object,type,isinstance,copy,deepcopy,zip,enumerate,reversed,list,set,len,dict,tuple,range,xrange,append,execfile,real,imag,reduce,str,repr,print, any,all,abs, min, max, },
-    %
-    % Magic methods
-    morekeywords=[3]{,__abs__,__add__,__and__,__bool__,__ceil__,__class__,__delattr__,
-    __dir__,__divmod__,__doc__,__eq__,__float__,__floor__,__floordiv__,
-    __format__,__ge__,__getattribute__,__getnewargs__,__gt__,__hash__,
-    __index__,__init__,__init_subclass__,__int__,__invert__,__le__,
-    __lshift__,__lt__,__mod__,__mul__,__ne__,__neg__,__new__,__or__,
-    __pos__,__pow__,__radd__,__rand__,__rdivmod__,__reduce__,__reduce_ex__,
-    __repr__,__rfloordiv__,__rlshift__,__rmod__,__rmul__,__ror__,__round__,
-    __rpow__,__rrshift__,__rshift__,__rsub__,__rtruediv__,__rxor__,__setattr__,
-    __sizeof__,__str__,__sub__,__subclasshook__,__truediv__,__trunc__,__xor__,bit_length,
-    conjugate,denominator,from_bytes,imag,numerator,real,to_bytes,},
-    %
-    % Errors
-    morekeywords=[4]{,Exception,NameError,IndexError,SyntaxError,TypeError,ValueError,OverflowError,ZeroDivisionError,},
-    %
-    % Numpy/module functions
-    morekeywords=[5]{,ode,fsolve,sqrt,exp,sin,cos,arctan,arctan2,arccos,pi,array,norm,solve,dot,arange,isscalar,max,sum,flatten,shape,reshape,find,plot,linspace,legend,quad,polyval,polyfit,hstack,concatenate,vstack,column_stack,empty,zeros,ones,rand,vander,grid,pcolor,eig,eigs,eigvals,svd,qr,tan,det,logspace,roll,mean,cumsum,cumprod,diff,vectorize,lstsq,cla,eye,squeeze,
-    % Add module functions
-    },
-    %
-    % self
-    morekeywords=[6]{,self,},
-}
+% %%% Packages %%%
+% \RequirePackage{listings}
+% 
+% \definecolor{backcolour}{rgb}{0.95,0.95,0.92}
+% \renewcommand{\lstlistingname}{\textbf{Code Listing}} % Makes label bf
+% %%% Defining new version of the python language %%%
+% \lstdefinelanguage{PythonPlus}[]{Python}{
+%     %
+%     %%% general listing options %%%
+%     xrightmargin=1cm,
+%     xleftmargin=1cm,
+%     aboveskip=1em,
+%     breaklines=true,
+%     abovecaptionskip=6pt,
+%     captionpos=b,
+%     escapeinside={(¤}{¤)},
+%     frame=single,
+%     numbers=left,
+%     numbersep=6pt,
+%     numberstyle=\scriptsize,
+%     showstringspaces=false,
+%     deletekeywords={,print,},
+%     %
+%     %%% Adding python keywords %%%
+%     %
+%     % Python builtin
+%     morekeywords=[1]{,as,assert,nonlocal,with,yield,True,False,None,},
+%     %
+%     % Common functions
+%     morekeywords=[2]{,object,type,isinstance,copy,deepcopy,zip,enumerate,reversed,list,set,len,dict,tuple,range,xrange,append,execfile,real,imag,reduce,str,repr,print, any,all,abs, min, max, },
+%     %
+%     % Magic methods
+%     morekeywords=[3]{,__abs__,__add__,__and__,__bool__,__ceil__,__class__,__delattr__,
+%     __dir__,__divmod__,__doc__,__eq__,__float__,__floor__,__floordiv__,
+%     __format__,__ge__,__getattribute__,__getnewargs__,__gt__,__hash__,
+%     __index__,__init__,__init_subclass__,__int__,__invert__,__le__,
+%     __lshift__,__lt__,__mod__,__mul__,__ne__,__neg__,__new__,__or__,
+%     __pos__,__pow__,__radd__,__rand__,__rdivmod__,__reduce__,__reduce_ex__,
+%     __repr__,__rfloordiv__,__rlshift__,__rmod__,__rmul__,__ror__,__round__,
+%     __rpow__,__rrshift__,__rshift__,__rsub__,__rtruediv__,__rxor__,__setattr__,
+%     __sizeof__,__str__,__sub__,__subclasshook__,__truediv__,__trunc__,__xor__,bit_length,
+%     conjugate,denominator,from_bytes,imag,numerator,real,to_bytes,},
+%     %
+%     % Errors
+%     morekeywords=[4]{,Exception,NameError,IndexError,SyntaxError,TypeError,ValueError,OverflowError,ZeroDivisionError,},
+%     %
+%     % Numpy/module functions
+%     morekeywords=[5]{,ode,fsolve,sqrt,exp,sin,cos,arctan,arctan2,arccos,pi,array,norm,solve,dot,arange,isscalar,max,sum,flatten,shape,reshape,find,plot,linspace,legend,quad,polyval,polyfit,hstack,concatenate,vstack,column_stack,empty,zeros,ones,rand,vander,grid,pcolor,eig,eigs,eigvals,svd,qr,tan,det,logspace,roll,mean,cumsum,cumprod,diff,vectorize,lstsq,cla,eye,squeeze,
+%     % Add module functions
+%     },
+%     %
+%     % self
+%     morekeywords=[6]{,self,},
+% }
 
-%%% Color theme %%%
-\lstdefinestyle{colorEX}{
-basicstyle=\ttfamily,
-backgroundcolor=\color{backcolour},
-commentstyle=\color{gray}\slshape, % Comments
-keywordstyle=[1]\color{violet}, % Builtin
-keywordstyle=[2]\color{Orange}, % Common functions
-keywordstyle=[3]\color{Cyan}, % Magic methods
-keywordstyle=[4]\color{OrangeRed}, % Errors
-keywordstyle=[5]\color{NavyBlue}, % Numpy
-keywordstyle=[6]\color{Maroon}, % Self
-stringstyle=\color{ForestGreen}, % Strings
-emphstyle=\color{blue}\bf\underbar,
-literate=% Digit color
-    *
-    {0}{{{\color{Emerald}0}}}1
-    {1}{{{\color{Emerald}1}}}1
-    {2}{{{\color{Emerald}2}}}1
-    {3}{{{\color{Emerald}3}}}1
-    {4}{{{\color{Emerald}4}}}1
-    {5}{{{\color{Emerald}5}}}1
-    {6}{{{\color{Emerald}6}}}1
-    {7}{{{\color{Emerald}7}}}1
-    {8}{{{\color{Emerald}8}}}1
-    {9}{{{\color{Emerald}9}}}1
-    {@}{{{\color{Maroon}@}}}1 % Decorators
-}
+% %%% Color theme %%%
+% \lstdefinestyle{colorEX}{
+% basicstyle=\ttfamily,
+% backgroundcolor=\color{backcolour},
+% commentstyle=\color{gray}\slshape, % Comments
+% keywordstyle=[1]\color{violet}, % Builtin
+% keywordstyle=[2]\color{Orange}, % Common functions
+% keywordstyle=[3]\color{Cyan}, % Magic methods
+% keywordstyle=[4]\color{OrangeRed}, % Errors
+% keywordstyle=[5]\color{NavyBlue}, % Numpy
+% keywordstyle=[6]\color{Maroon}, % Self
+% stringstyle=\color{ForestGreen}, % Strings
+% emphstyle=\color{blue}\bf\underbar,
+% literate=% Digit color
+%     *
+%     {0}{{{\color{Emerald}0}}}1
+%     {1}{{{\color{Emerald}1}}}1
+%     {2}{{{\color{Emerald}2}}}1
+%     {3}{{{\color{Emerald}3}}}1
+%     {4}{{{\color{Emerald}4}}}1
+%     {5}{{{\color{Emerald}5}}}1
+%     {6}{{{\color{Emerald}6}}}1
+%     {7}{{{\color{Emerald}7}}}1
+%     {8}{{{\color{Emerald}8}}}1
+%     {9}{{{\color{Emerald}9}}}1
+%     %{@}{{{\color{Maroon}@}}}1 % Decorators
+% }
 
-%%% Setting the created style %%%
-\lstset{style=colorEX}
+% %%% Setting the created style %%%
+% \lstset{style=colorEX}
 
 
 % Ska macros som \atom{1}{H} användas i rubriker ska det skrivas \texorpdfstring{\atom{1}{H}}
